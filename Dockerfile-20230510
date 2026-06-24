@@ -1,8 +1,8 @@
 #
 # Build an Ubuntu installation of pycsep
 #
-FROM ubuntu:jammy
-LABEL org.opencontainers.image.authors="bhatthal@usc.edu"
+from ubuntu:jammy
+MAINTAINER Philip Maechling maechlin@usc.edu
 
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -28,12 +28,11 @@ ENV APP_UNAME=$APP_UNAME \
 APP_GRPNAME=$APP_GRPNAME \
 APP_UID=$APP_UID \
 APP_GID=$APP_GID \
-BDATE=$BDATE \
-CONDA_PLUGINS_AUTO_ACCEPT_TOS=true
+BDATE=$BDATE
 
-ENV USER=${APP_UNAME}
-ENV NB_UID=${APP_UID}
-ENV HOME=/home/${APP_UNAME}
+ENV USER ${APP_UNAME}
+ENV NB_UID ${APP_UID}
+ENV HOME /home/${APP_UNAME}
 
 # Retrieve the userid and groupid from the args so 
 # Define these parameters to support building and deploying on EC2 so user is not root
@@ -55,17 +54,10 @@ ARG PATH="/home/$APP_UNAME/miniconda3/bin:${PATH}"
 
 WORKDIR /home/$APP_UNAME
 
-RUN ARCH=$(uname -m) \
-	&& if [ "$ARCH" = "x86_64" ]; then \
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; \
-    elif [ "$ARCH" = "aarch64" ]; then \
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O /tmp/miniconda.sh; \
-    else \
-        echo "Unsupported architecture: $ARCH" && exit 1; \
-    fi \
-    && mkdir -p /home/$APP_UNAME/.conda \
-    && bash /tmp/miniconda.sh -b \
-    && rm -f /tmp/miniconda.sh \
+RUN wget  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+    && mkdir /home/$APP_UNAME/.conda \
+    && bash Miniconda3-latest-Linux-x86_64.sh -b \
+    && rm -f Miniconda3-latest-Linux-x86_64.sh \
     && echo "Running $(conda --version)" \
     && conda update conda \
     && conda create -n cs_data_env \
@@ -80,8 +72,8 @@ RUN git clone https://github.com/SCECcode/cs-data-tools.git
 #
 # Add metadata to dockerfile using labels
 LABEL "org.scec.project"="cs_data"
-LABEL org.scec.responsible_person="Akash Bhatthal"
-LABEL org.scec.primary_contact="bhatthal@usc.edu"
+LABEL org.scec.responsible_person="Phil Maechling"
+LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="$BDATE"
 
 #
